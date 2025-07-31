@@ -1,0 +1,206 @@
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* 如果你用 flex，需要這個才會生效 */
+}
+
+
+/* 全域樣式 */
+body {
+    font-family: sans-serif;
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    padding-top: 70px;
+    color: #333;
+}
+
+/* 容器 */
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 標題 */
+h1 {
+    text-align: center;
+    color: black;
+}
+
+/* 輸入區 */
+.input-group {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.input-group input {
+    padding: 6px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 70%;
+    color: black;
+    background-color: white;
+}
+
+.add-button {
+    background-color: #3ee059;
+    padding: 6px 12px;
+    margin-left: 8px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+}
+
+.clear-button {
+    background-color: #dc3545;
+    color: white;
+    padding: 2px 4px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* 篩選按鈕 */
+.filter-group {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.filter-group button {
+    margin: 0 3px;
+    padding: 5px 10px;
+}
+
+.active {
+    background-color: #007bff;
+    color: white;
+}
+
+/* 清單項目 */
+ul {
+    padding-left: 0;
+    margin-top: 15px;
+}
+
+li {
+    list-style: none;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+}
+
+.todo-checkbox {
+    margin-right: 10px;
+}
+
+.completed span {
+    text-decoration: line-through;
+    color: gray;
+    opacity: 0.5;
+}
+
+/* 刪除按鈕 */
+.delete-btn {
+    margin-left: 10px;
+    background: #ff4d4d;
+    border: none;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* 無資料提示 */
+.no-data {
+    text-align: center;
+    color: #999;
+    margin-top: 10px;
+}
+
+/* 控制群組（底部按鈕區） */
+.control-group {
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* 共用按鈕樣式 */
+button {
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    border: 1px solid black;
+}
+
+.todo-checkbox {
+    accent-color: black;
+    color-scheme: light;
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    /* 底色 */
+    border: 1px solid black;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.add-button:focus {
+    box-shadow: 0 0 0 2px rgba(60, 200, 100, 0.4);
+    /* 淺綠色 */
+}
+
+.delete-btn:focus {
+    box-shadow: 0 0 0 2px rgba(255, 77, 77, 0.5);
+    /* 淺紅色 */
+}
+
+.edit-input {
+    accent-color: black;
+    color-scheme: light;
+    font-size: 16px;
+}
+
+.todo-text {
+    position: relative;
+    cursor: pointer;
+}
+
+.todo-text::after {
+    content: "雙擊可編輯文字";
+    position: absolute;
+    top: 100%;
+    left: 100%;
+
+    background-color: #8e8d8d;
+    color: white;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+}
+
+.todo-text:hover::after {
+    opacity: 1;
+}
