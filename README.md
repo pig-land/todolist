@@ -1,6 +1,6 @@
 # 📝 Full Stack Todo List App
 
-這是一個使用 React 搭配 Node.js + Express + MongoDB 打造的全端 Todo List 應用，支援任務新增、編輯、完成狀態切換與刪除功能。前後端完全分離，適合作為學習與練習前後端整合的入門專案。
+這是一個使用 React、Node.js、Express 與 MongoDB 打造的全端 Todo List 應用，支援任務新增、編輯、完成狀態切換與刪除功能。前後端完全分離，適合作為學習與練習前後端整合的入門專案。
 
 ---
 
@@ -26,7 +26,7 @@ todolist/
 ### 後端（backend）
 - Node.js
 - Express
-- MongoDB（透過 mongoose）
+- MongoDB（使用 Mongoose 作為 ODM 工具）
 - dotenv（環境變數管理）
 
 ---
@@ -47,7 +47,7 @@ npm install
 npm run dev
 ```
 
-預設前端會在 `http://localhost:5173` 啟動。
+預設情況下，前端開發伺服器會在 http://localhost:5173 啟動。
 
 ---
 
@@ -88,7 +88,7 @@ node server.js
 
 ## 🙋‍♂️ 作者說明
 
-這是我第一次嘗試自己完成前後端整合的專案。雖然很多程式碼是透過 AI 工具輔助產生（連這一份 README 也是），但我都有努力去理解每一段程式邏輯與流程，並從中學習如何設計 API、維持資料一致性，以及 React 的實務用法。
+這是我第一次嘗試自己完成前後端整合的專案。雖然許多程式碼是透過 AI 工具協助撰寫（包含這份 README），但我都有努力去理解每一段程式邏輯與流程，並從中學習如何設計 API、維持資料一致性，以及 React 的實務用法。
 
 ---
 
