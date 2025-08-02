@@ -8,6 +8,17 @@ import TodoList from './components/TodoList';
 import './styles/style.css';// 引入樣式表
 
 
+// 引入 Toast 功能與樣式相關設定
+// 從 react-toastify 套件中引入兩個東西：
+// - ToastContainer：畫面上要放置的元件，用來實際顯示 toast 訊息（必須放在畫面中才會顯示）
+// - toast：一個函式，可以呼叫它來觸發提示訊息，例如 toast.success("新增成功")
+import { ToastContainer, toast } from 'react-toastify';
+
+// 引入 react-toastify 的內建 CSS 樣式檔案，否則 toast 訊息會沒有樣式（例如背景顏色、動畫、位置等）
+// 這一行一定要加，否則畫面上會看不到 toast，或會變成一塊沒有設計的原始文字
+import 'react-toastify/dist/ReactToastify.css';
+
+
 function App() {
 
   // 每次 todos 改變時，React 會重新渲染畫面
@@ -70,9 +81,11 @@ function App() {
       .then(createdTodo => {
         // 把後端成功建立並回傳的 todo 加進 todos 狀態中，畫面會自動重新渲染
         setTodos(prev => [...prev, createdTodo]);
+        toast.success("新增成功！");
       })
       .catch(err => {
         console.error("新增失敗：", err);
+        toast.error("新增失敗！");
       });
   };
 
@@ -97,6 +110,7 @@ function App() {
         const allSuccess = responses.every(res => res.ok);
         if (allSuccess) {
           setTodos([]);
+          toast.success('刪除成功！');
         } else {
           alert("部分資料刪除失敗，請重試");
         }
@@ -133,7 +147,16 @@ function App() {
       {todos.length > 0 && (<button className="clear-button" onClick={clearAllTodos}>
         清空全部
       </button>)}
+
+      <ToastContainer
+        position="bottom-right"
+        autoClose={1500}
+        hideProgressBar={true}
+        closeButton={false}
+      />
+
     </div>
+
 
   )
 }

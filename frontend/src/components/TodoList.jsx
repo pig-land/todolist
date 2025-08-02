@@ -1,6 +1,10 @@
 // 引入 TodoItem 元件，用來渲染每一筆代辦事項
 import TodoItem from "./TodoItem";
 
+// 引入 Toast 功能與樣式相關設定
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 // TodoList 是一個負責「列出清單」的元件
 // 它會依據傳入的 todos 資料陣列與篩選條件（filter）來顯示符合的項目
@@ -63,8 +67,12 @@ function TodoList({ todos, setTodos, filter }) {
                 .then(() => {
                     // 從狀態中移除該筆 todo
                     setTodos(todos.filter(todo => todo._id != id));
+                    toast.success('刪除成功！');
                 })
-                .catch(err => console.error("刪除失敗：", err));
+                .catch(err => {
+                    console.error("刪除失敗：", err)
+                    toast.error("刪除失敗！");
+                });
         }
     };
 
