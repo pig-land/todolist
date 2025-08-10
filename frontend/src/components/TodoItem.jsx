@@ -14,8 +14,15 @@ function TodoItem({ todo, onToggle, onDelete, onUpdate }) {
     // text：當使用者編輯文字時，暫存編輯中的文字內容
     const [text, setText] = useState(todo.text);
 
+    // submitting：用來防止重複提交的旗標
+    const [submitting, setSubmitting] = useState(false);
+
     // 處理編輯完成的提交事件
     const handleSubmit = () => {
+
+        if (submitting) return;// 如果已經在提交中，就直接跳出（避免短時間內重複觸發）
+        setSubmitting(true);// 標記正在提交中
+
         const trimmed = text.trim();// 去除頭尾空白
         if (trimmed === '') {
             alert('內容不可為空');// 提醒使用者不能輸入空字串
@@ -24,6 +31,7 @@ function TodoItem({ todo, onToggle, onDelete, onUpdate }) {
             onUpdate(todo._id, trimmed);// 呼叫父元件提供的函式來更新資料
         }
         setIsEditing(false);// 離開編輯模式
+        setSubmitting(false);// 提交結束，允許下次提交
     };
 
 

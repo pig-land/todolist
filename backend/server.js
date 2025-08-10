@@ -45,8 +45,12 @@ app.get('/', (req, res) => {
 
 // GET /todos：取得所有待辦事項
 app.get('/todos', async (req, res) => {
-  const todos = await Todo.find();  // 從資料庫抓全部 todos
-  res.json(todos);                  // 回傳給前端（JSON 陣列）
+  try {
+    const todos = await Todo.find();// 從資料庫抓全部 todos
+    res.json(todos);// 回傳給前端（JSON 陣列）
+  } catch (err) {
+    res.status(500).json({ error: '讀取失敗' });
+  }
 });
 
 // POST /todos：新增一筆待辦事項
@@ -54,8 +58,8 @@ app.post('/todos', async (req, res) => {
   const { text, completed } = req.body;// 從前端取得傳來的資料
 
   // 基本防呆：text 一定要是字串，否則回傳錯誤
-  if (typeof text !== 'string') {
-    return res.status(400).json({ error: 'text 欄位必須是字串' });
+  if (typeof text !== 'string' || text.trim() === '') {
+    return res.status(400).json({ error: 'text 欄位必須是非空白的字串' });
   }
 
   try {
@@ -74,20 +78,29 @@ app.post('/todos', async (req, res) => {
 // PATCH /todos/:id：修改一筆待辦事項（部分更新）
 app.patch('/todos/:id', async (req, res) => {
   try {
-    // 使用 id 找出該筆 todo，然後用 req.body 的內容進行更新
-    // { new: true } 表示回傳更新後的資料（不是更新前的）
-    const updated = await Todo.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (updated) {
-      res.json(updated);// 更新成功後回傳資料
-    } else {
-      res.status(404).json({ error: '找不到該筆 todo' });// 若 id 不存在
+    const patch = {};// 準備一個空物件，專門存放允許被更新的欄位
+
+     // 檢查 req.body 裡是否有傳 text 欄位
+     if ('text' in req.body) {
+      const trimmed = String(req.body.text).trim();// 轉成字串並去除前後空白
+      if (trimmed === ''){
+        return res.status(400).json({ error: 'text 不能是空字串' });// 如果是空字串，回傳 400（Bad Request）並結束
+      } 
+      patch.text = trimmed;// 驗證通過才放進 patch
     }
+
+    // 檢查 req.body 裡是否有傳 completed 欄位
+    if ('completed' in req.body) {
+      patch.completed = !!req.body.completed;// !! 轉成布林值（例如 'true' → true, 1 → true, null → false）
+    }
+
+    // 用 id 找到對應的待辦，並套用 patch 更新
+    // { new: true } → 更新後回傳最新資料（預設會回傳更新前的資料）
+    const updated = await Todo.findByIdAndUpdate( req.params.id, patch, { new: true });
+    if (updated) return res.json(updated);// 如果找到並更新成功，回傳更新後的資料
+    res.status(404).json({ error: '找不到該筆 todo' });// 沒找到對應資料，回傳 404
   } catch (err) {
-    res.status(500).json({ error: '更新失敗' });
+    res.status(500).json({ error: '更新失敗' });// 發生伺服器錯誤（例如資料庫連線問題）
   }
 });
 
@@ -104,6 +117,25 @@ app.delete('/todos/:id', async (req, res) => {
     res.status(500).json({ error: '刪除失敗' });
   }
 });
+
+
+// DELETE /todos：刪除全部（批次）
+app.delete('/todos', async (req, res) => {
+  try {
+    await Todo.deleteMany({});// 刪除 todos collection 中的所有文件
+
+    // 也可以選擇回傳刪除數量：
+    // const result = await Todo.deleteMany({});
+    // res.json({ deletedCount: result.deletedCount });
+    
+    // 這裡回傳簡單的成功訊息
+    // 若想遵循 REST 規範，可改用 res.status(204).send() 表示「成功但無回應內容」
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: '清空失敗' });
+  }
+});
+
 
 // 啟動後端伺服器，開始監聽 port（預設是 http://localhost:3001）
 app.listen(port, () => {

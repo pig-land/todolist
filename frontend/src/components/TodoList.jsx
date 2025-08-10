@@ -5,6 +5,9 @@ import TodoItem from "./TodoItem";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+// 改用集中管理的 API
+import { updateTodo as apiUpdateTodo, deleteTodo as apiDeleteTodo } from '../services/api';
+
 
 // TodoList 是一個負責「列出清單」的元件
 // 它會依據傳入的 todos 資料陣列與篩選條件（filter）來顯示符合的項目
@@ -16,84 +19,51 @@ function TodoList({ todos, setTodos, filter }) {
     const filteredTodos =
         filter === 'all' ? todos :                           //全部
             filter === 'done' ? todos.filter(t => t.completed) :  // 已完成
-                todos.filter(t => !t.completed); // 未完成  
+                todos.filter(t => !t.completed); // 未完成
 
 
-    // 勾選 checkbox 時，切換完成狀態                        
-    const toggleTodo = (id) => {
+    // 勾選切換完成狀態
+    const toggleTodo = async (id) => {
+        try {
+            const target = todos.find(t => t._id === id);
+            if (!target) return; // 保護性檢查
+            const updated = await apiUpdateTodo(id, { completed: !target.completed });
+            setTodos(prev => prev.map(t => (t._id === id ? updated : t)));
+        } catch (err) {
+            console.error('更新完成狀態失敗：', err);
+            toast.error(`更新失敗：${err.message}`);
+        }
+    }
 
-        // 找出被切換的 todo
-        // 根據 MongoDB 的唯一識別碼 _id，找出被點擊的那一筆 todo 物件
-        // 注意：不能用 index 或 id，因為 _id 是從後端傳回來最可靠的主鍵
-        const target = todos.find(todo => todo._id === id);
 
-        // 複製這筆 todo 物件，建立一個新的物件 updated
-        // ...target：將原本 target 的屬性展開複製（text、_id、completed）
-        // 然後覆蓋 completed 欄位為「相反的布林值」（true → false / false → true）
-        const updated = { ...target, completed: !target.completed };
+    // 刪除一筆
+    const deleteTodo = async (id) => {
+        if (!confirm("確定要刪除?")) return;
+        try {
+            await apiDeleteTodo(id);
+            setTodos(prev => prev.filter(t => t._id !== id));
+            toast.success('刪除成功！');
 
-        // 向後端發送 PATCH 請求，更新某一筆 todo 的 completed 狀態
-        fetch(`http://localhost:3001/todos/${id}`, {
-            method: "PATCH",// 使用 PATCH 方法來更新部分欄位（不像 PUT 是整筆覆蓋）
-            headers: {
-                "Content-Type": "application/json"// 告訴伺服器，我要送的是 JSON 格式的資料
-            },
-            body: JSON.stringify({ completed: updated.completed })// 把新的 completed 狀態包裝成 JSON 傳給後端
-        })
-            .then(res => res.json())// 等待伺服器回應，並將回傳的 JSON 轉換成 JS 物件
-            .then(data => {// data 是後端回傳「更新後的那筆 todo 資料」（含最新狀態）
-
-                // 用 map 去遍歷目前的 todos 陣列
-                // 如果這筆 todo 的 _id 跟剛剛更新的是同一筆，就用後端回傳的資料（data）取代
-                // 其他沒改的 todo 保持原樣
-                const newTodos = todos.map(todo =>
-                    todo._id === id ? data : todo
-                );
-
-                // 使用 React 的 setTodos 更新畫面狀態
-                // 這樣會觸發重新渲染，畫面才會顯示最新的勾選狀態
-                setTodos(newTodos);
-            })
-            .catch(err => console.error("更新完成狀態失敗：", err));// 如果請求失敗（例如伺服器沒回應、網路錯誤），顯示錯誤訊息
-
-    };
-
-    // 刪除一筆 todo
-    const deleteTodo = (id) => {
-        if (confirm("確定要刪除?")) {
-            fetch(`http://localhost:3001/todos/${id}`, {
-                method: "DELETE"
-            })
-                .then(() => {
-                    // 從狀態中移除該筆 todo
-                    setTodos(todos.filter(todo => todo._id != id));
-                    toast.success('刪除成功！');
-                })
-                .catch(err => {
-                    console.error("刪除失敗：", err)
-                    toast.error("刪除失敗！");
-                });
+        } catch (err) {
+            console.error('刪除失敗：', err);
+            toast.error(`刪除失敗：${err.message}`);
         }
     };
 
-    // 編輯 todo 的文字內容
-    const updateTodo = (id, newText) => {
-        fetch(`http://localhost:3001/todos/${id}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ text: newText })
-        })
-            .then(res => res.json())
-            .then(data => {
-                const newTodos = todos.map(todo =>
-                    todo._id === id ? data : todo
-                );
-                setTodos(newTodos);
-            })
-            .catch(err => console.error("更新文字失敗：", err));
-    };
+
+    // 編輯文字
+    const updateTodo = async (id, newText) => {
+        try {
+            const updated = await apiUpdateTodo(id, { text: newText });
+            setTodos(prev => prev.map(t => (t._id === id ? updated : t)));
+        } catch (err) {
+            console.error('更新文字失敗：', err);
+            toast.error(`更新失敗：${err.message}`);
+        }
+    }
+
+
+
 
 
     // 如果目前沒有任何符合條件的 todo，就顯示提示訊息
